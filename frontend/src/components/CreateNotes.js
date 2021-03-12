@@ -14,13 +14,25 @@ export default class CreateNotes extends Component {
 
     async componentDidMount(){
         const res = await axios.get('http://localhost:4000/api/users')
-        this.setState({users: res.data.map(user => user.username)})
+        this.setState({users: res.data.map(user => user.username),
+            userSelected: res.data[0].username
+        })
+        
     }
 
     //Metodo para enviar
-    //Crear una nueva nota
-    onSubmit= (e) =>{
-        e.preventDefault()
+    //Crear una nueva nota y enviarla al backend
+    onSubmit= async (e) =>{
+        e.preventDefault() 
+        const newNote = {
+            title: this.state.title,
+            content: this.state.content,
+            date: this.state.date,
+            author: this.state.userSelected
+        }
+        await axios.post('http://localhost:4000/api/notes', newNote)
+        window.location.href = '/'
+        
     }
     //Metodo para asignar los datos a los inputs o text area
     //dependiendo el nombre del input que estes asignando cambiara
@@ -32,7 +44,7 @@ export default class CreateNotes extends Component {
 
     //Metodo para cambiar fecha
     onChangeDate = date =>{
-        this.setState({date})
+        this.setState({ date })
     }
 
     render() {
