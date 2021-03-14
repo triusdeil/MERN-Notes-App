@@ -8,7 +8,7 @@ import CreateUser from "./components/CreateUser"
 import CreateNotes from './components/CreateNotes'
 function App() {
   return (
-    //Router es un contenedor
+    //Router es un contenedor a todos los componentes le da acceso a un objeto
     //Route son las rutas
     //exact para que coincida exactamente la ruta
     <Router>

@@ -9,7 +9,9 @@ export default class CreateNotes extends Component {
         userSelected: '',
         title : '',
         content: '',
-        date: new Date()
+        date: new Date(),
+        editing: false,
+        _id:''
     }
 
     async componentDidMount(){
@@ -17,20 +19,42 @@ export default class CreateNotes extends Component {
         this.setState({users: res.data.map(user => user.username),
             userSelected: res.data[0].username
         })
-        
+        /*actualizar los datos*/
+        if(this.props.match.params.id){
+            //obtener los datos de la nota para mostrar que contenia
+            const res = await axios.get('http://localhost:4000/api/notes/' + this.props.match.params.id)
+            this.setState({
+                title: res.data.title,
+                content: res.data.content,
+                date: new Date(),
+                userSelected: res.data.author,
+                editing:true,
+                _id:this.props.match.params.id
+            })
+        }
     }
 
     //Metodo para enviar
     //Crear una nueva nota y enviarla al backend
     onSubmit= async (e) =>{
         e.preventDefault() 
+        //toma los datos del estado y lo envia al backend
+        //sera igual para el act y el env notes
         const newNote = {
             title: this.state.title,
             content: this.state.content,
             date: this.state.date,
             author: this.state.userSelected
         }
-        await axios.post('http://localhost:4000/api/notes', newNote)
+        //validacion si el estado de edit es true o no
+        if(this.state.editing){
+            await axios.put('http://localhost:4000/api/notes/'+ this.state._id, newNote)
+        }else{
+            //solamente cuando este creando
+            await axios.post('http://localhost:4000/api/notes', newNote)
+        }
+        
+        //se ejecuta siempre si esta actualizando o creando
         window.location.href = '/'
         
     }
@@ -59,6 +83,7 @@ export default class CreateNotes extends Component {
                             className="form-control"
                             name="userSelected"
                             onChange={this.onInputChange}
+                            value={this.state.userSelected}
                             >
                                 {
                                     this.state.users.map(user =>
@@ -75,6 +100,7 @@ export default class CreateNotes extends Component {
                             placeholder="Title" 
                             name="title"
                             onChange={this.onInputChange}
+                            value={this.state.title}
                             required/>
                         </div>
                             
@@ -84,6 +110,7 @@ export default class CreateNotes extends Component {
                             placeholder="Content"
                             name="content"
                             onChange={this.onInputChange}
+                            value={this.state.content}
                             required
                             />
                         </div>
